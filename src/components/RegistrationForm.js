@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import './form-styles.css';
-//import firebase from 'firebase/compat/app';
+import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import firebase from '../firebase'; // Update the path based on your file structure
-
-
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const RegistrationForm = () => {
   const [name, setName] = useState('');
@@ -65,7 +62,6 @@ const RegistrationForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle registration logic here
     console.log('Registration submitted');
     console.log('Name:', name);
     console.log('Email:', email);
@@ -78,21 +74,45 @@ const RegistrationForm = () => {
     console.log('LinkedIn ID:', linkedinId);
     console.log('Password:', password);
     console.log('Confirm Password:', confirmPassword);
-     // fire base in regist
+
+    
+
     firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // User registration successful
-      const user = userCredential.user;
-      console.log('User registration successful:', user);
-      // You can perform additional actions here, like storing additional user data in Firebase Firestore
-    })
-    .catch((error) => {
-      // User registration failed
-      const errorMessage = error.message;
-      console.error('User registration failed:', errorMessage);
-    });
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log('User registration successful:', user);
+
+        // Store user registration data in Firestore
+        const db = getFirestore();
+        const usersCollection = collection(db, 'directconnect');
+
+        addDoc(usersCollection, {
+          name: name,
+          email: email,
+          phoneNumber: phoneNumber,
+          age: age,
+          gender: gender,
+          educationalqualification : qualification ,
+          organization : organization,
+          designation : designation,
+          linkedinID : linkedinId,
+
+          
+        })
+          .then(() => {
+            console.log('User registration data stored in Firestore');
+            // You can perform additional actions here if needed
+          })
+          .catch((error) => {
+            console.error('Error storing user registration data:', error);
+          });
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        console.error('User registration failed:', errorMessage);
+      });
   };
 
   return (
@@ -137,7 +157,7 @@ const RegistrationForm = () => {
         required
       />
       <br />
-
+       
       <label htmlFor="gender">Gender:</label>
       <select id="gender" value={gender} onChange={handleGenderChange} required>
         <option value="">Select</option>
@@ -208,10 +228,9 @@ const RegistrationForm = () => {
       <br />
 
       <button type="submit">Register</button>
+      <div className="reg">Already having an account,  <a href="#" className="log">Login</a></div>
     </form>
   );
-  
 };
-
 
 export default RegistrationForm;
