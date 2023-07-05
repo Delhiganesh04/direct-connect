@@ -7,7 +7,7 @@ import firebase from '../firebase'; // Update the path based on your file struct
 
 
 
-const LoginForm = () => {
+const LoginForm = ({ handleSwitchForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -22,11 +22,11 @@ const LoginForm = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     // Check email and password against registered credentials
-    if (email === 'registered_email@example.com' && password === 'password123') {
-      console.log('Login successful');
+    if(email === 'registered_email@example.com' && password === 'password123') {
+      console.log('Login failed');
       // Perform additional actions upon successful login
     } else {
-      console.log('Login failed');
+      console.log('Login successfull');
       // Display error message or perform other actions for failed login
     }
      // fire base in login
@@ -48,9 +48,9 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <form className="add "onSubmit={handleLogin}>
       <h2>Login</h2>
-      <label htmlFor="email">Email:</label>
+      <label className="box" htmlFor="email">Email:</label>
       <input
         type="email"
         id="email"
@@ -71,6 +71,12 @@ const LoginForm = () => {
       <br />
 
       <button type="submit">Login</button>
+      <div className="reg">
+        Don't have an account?{' '}
+        <button type="button" className="log" onClick={handleSwitchForm}>
+          Signup
+        </button>
+      </div>
     </form>
   );
 };
