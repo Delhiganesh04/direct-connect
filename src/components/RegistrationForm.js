@@ -3,7 +3,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
-const RegistrationForm = () => {
+const RegistrationForm = ({ handleSwitchForm }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -228,7 +228,12 @@ const RegistrationForm = () => {
       <br />
 
       <button type="submit">Register</button>
-      <div className="reg">Already having an account,  <a href="#" className="log">Login</a></div>
+      <div className="reg">
+        Already have an account?{' '}
+        <button type="button" className="log" onClick={handleSwitchForm}>
+          Login
+        </button>
+      </div>
     </form>
   );
 };
