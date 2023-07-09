@@ -15,6 +15,9 @@ const RegistrationForm = ({ handleSwitchForm }) => {
   const [linkedinId, setLinkedinId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationId, setVerificationId] = useState('');
+  const [otp, setOtp] = useState('');
+  const [registrationStatus, setRegistrationStatus] = useState('');
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -60,7 +63,7 @@ const RegistrationForm = ({ handleSwitchForm }) => {
     setConfirmPassword(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Registration submitted');
     console.log('Name:', name);
@@ -75,44 +78,58 @@ const RegistrationForm = ({ handleSwitchForm }) => {
     console.log('Password:', password);
     console.log('Confirm Password:', confirmPassword);
 
-    
+    try {
+      // Request OTP verification
+      const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+      const phoneProvider = new firebase.auth.PhoneAuthProvider();
+      const verificationId = await phoneProvider.verifyPhoneNumber(
+        phoneNumber,
+        recaptchaVerifier
+      );
+      setVerificationId(verificationId);
+    } catch (error) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error('OTP verification failed:', errorCode, errorMessage);
+    }
+  };
 
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('User registration successful:', user);
+  const handleOTPVerification = async () => {
+    try {
+      const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, otp);
+      await firebase.auth().signInWithCredential(credential);
+      console.log('OTP verification successful');
 
-        // Store user registration data in Firestore
-        const db = getFirestore();
-        const usersCollection = collection(db, 'directconnect');
+      // Create user with email and password
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+      console.log('User registration successful:', user);
 
-        addDoc(usersCollection, {
-          name: name,
-          email: email,
-          phoneNumber: phoneNumber,
-          age: age,
-          gender: gender,
-          educationalqualification : qualification ,
-          organization : organization,
-          designation : designation,
-          linkedinID : linkedinId,
+      // Store user registration data in Firestore
+      const db = getFirestore();
+      const usersCollection = collection(db, 'directconnect');
 
-          
-        })
-          .then(() => {
-            console.log('User registration data stored in Firestore');
-            // You can perform additional actions here if needed
-          })
-          .catch((error) => {
-            console.error('Error storing user registration data:', error);
-          });
-      })
-      .catch((error) => {
-        const errorMessage = error.message;
-        console.error('User registration failed:', errorMessage);
+      await addDoc(usersCollection, {
+        name: name,
+        email: email,
+        phoneNumber: phoneNumber,
+        age: age,
+        gender: gender,
+        educationalqualification: qualification,
+        organization: organization,
+        designation: designation,
+        linkedinID: linkedinId,
       });
+
+      console.log('User registration data stored in Firestore');
+      setRegistrationStatus('success');
+      // You can perform additional actions here if needed
+    } catch (error) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error('User registration failed:', errorCode, errorMessage);
+      setRegistrationStatus('failed');
+    }
   };
 
   return (
@@ -157,7 +174,7 @@ const RegistrationForm = ({ handleSwitchForm }) => {
         required
       />
       <br />
-       
+
       <label htmlFor="gender">Gender:</label>
       <select id="gender" value={gender} onChange={handleGenderChange} required>
         <option value="">Select</option>
@@ -166,7 +183,7 @@ const RegistrationForm = ({ handleSwitchForm }) => {
         <option value="other">Other</option>
       </select>
       <br />
-
+      
       <label htmlFor="qualification">Education Qualification:</label>
       <input
         type="text"
@@ -227,15 +244,38 @@ const RegistrationForm = ({ handleSwitchForm }) => {
       />
       <br />
 
-      <button type="submit">Register</button>
-      <div className="reg">
-        Already have an account?{' '}
-        <button type="button" className="log" onClick={handleSwitchForm}>
-          Login
-        </button>
-      </div>
-    </form>
-  );
-};
+      <div id="recaptcha-container"></div>
+      {verificationId ? (
+            <>
+              <label htmlFor="otp">Enter OTP:</label>
+              <input
+                type="text"
+                id="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+              <br />
+              <button type="button" onClick={handleOTPVerification}>
+                Verify OTP
+              </button>
+            </>
+          ) : (
+            <button type="submit">Register</button>
+          )}
+
+          {registrationStatus === 'success' && <p>Registration is successful!</p>}
+          {registrationStatus === 'failed' && <p>Registration failed. Please try again.</p>}
+
+          <div className="reg">
+            Already have an account?{' '}
+            <button type="button" className="log" onClick={handleSwitchForm}>
+              Login
+            </button>
+          </div>
+        </form>
+      );
+    };
 
 export default RegistrationForm;
+
