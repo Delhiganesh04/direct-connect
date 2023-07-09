@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router  } from 'react-router-dom';
 import './form-styles.css';
 import 'firebase/compat/auth';
 import firebase from '../firebase'; // Update the path based on your file structure
@@ -6,6 +7,7 @@ import firebase from '../firebase'; // Update the path based on your file struct
 const LoginForm = ({ handleSwitchForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+ 
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -17,14 +19,7 @@ const LoginForm = ({ handleSwitchForm }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Check email and password against registered credentials
-    if (email === 'registered_email@example.com' && password === 'password123') {
-      console.log('Login failed');
-      // Perform additional actions upon successful login
-    } else {
-      console.log('Login successful');
-      // Display error message or perform other actions for failed login
-    }
+
     // Firebase login
     firebase
       .auth()
@@ -33,13 +28,22 @@ const LoginForm = ({ handleSwitchForm }) => {
         // User login successful
         const user = userCredential.user;
         console.log('User login successful:', user);
-        // You can perform additional actions here, like redirecting the user to a dashboard page
+        // Perform additional actions upon successful login
+        if (email === user.email) {
+          console.log('Login successful');
+          // Redirect or perform additional actions for successful login
+          window.location.href = 'https://www.tncengineers.com';
+        } else {
+          console.log('Login failed');
+          // Handle invalid credentials or show an error message
+        }
       })
       .catch((error) => {
         // User login failed
         const errorMessage = error.message;
         console.error('User login failed:', errorMessage);
         // Display error message or perform other actions for failed login
+        console.log('Login failed');
       });
   };
 
@@ -51,7 +55,7 @@ const LoginForm = ({ handleSwitchForm }) => {
       .sendPasswordResetEmail(email)
       .then(() => {
         console.log('Password reset email sent');
-        // You can display a success message or perform additional actions here
+        // Display a success message or perform additional actions here
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -99,4 +103,10 @@ const LoginForm = ({ handleSwitchForm }) => {
   );
 };
 
-export default LoginForm;
+const LoginFormWithRouter = () => (
+  <Router>
+    <LoginForm handleSwitchForm={() => {}} />
+  </Router>
+);
+
+export default LoginFormWithRouter;
