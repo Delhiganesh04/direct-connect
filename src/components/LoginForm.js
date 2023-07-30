@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router  } from 'react-router-dom';
 import './form-styles.css';
 import 'firebase/compat/auth';
 import firebase from '../firebase'; // Update the path based on your file structure
@@ -7,7 +6,6 @@ import firebase from '../firebase'; // Update the path based on your file struct
 const LoginForm = ({ handleSwitchForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
- 
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -67,32 +65,39 @@ const LoginForm = ({ handleSwitchForm }) => {
   return (
     <form className="add" onSubmit={handleLogin}>
       <h2>Login</h2>
-      <label className="box" htmlFor="email">
-        Email:
-      </label>
-      <input
-        type="email"
-        id="email"
-        value={email}
-        onChange={handleEmailChange}
-        required
-      />
+      <div className="boxes">
+        <label className="box" htmlFor="email">
+          Email:
+        </label>
+        <input
+          type="email"
+          id="email"
+          value={email}
+          onChange={handleEmailChange}
+          placeholder="Enter your email"
+          required
+        />
+      </div>
       <br />
-
-      <label htmlFor="password">Password:</label>
-      <input
-        type="password"
-        id="password"
-        value={password}
-        onChange={handlePasswordChange}
-        required
-      />
+      <div className="boxes">
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={handlePasswordChange}
+          placeholder="Enter password"
+          required
+        />
+      </div>
       <br />
 
       <button type="submit">Login</button>
-      <button type="button" onClick={handleResetPassword}>
-        Reset Password
-      </button>
+      <div className="reset">
+        <button type="button" onClick={handleResetPassword}>
+          Reset Password
+        </button>
+      </div>
       <div className="reg">
         Don't have an account?{' '}
         <button type="button" className="log" onClick={handleSwitchForm}>
@@ -103,10 +108,4 @@ const LoginForm = ({ handleSwitchForm }) => {
   );
 };
 
-const LoginFormWithRouter = () => (
-  <Router>
-    <LoginForm handleSwitchForm={() => {}} />
-  </Router>
-);
-
-export default LoginFormWithRouter;
+export default LoginForm;
