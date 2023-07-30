@@ -1,0 +1,27 @@
+.country-code-phone-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .country-code-container {
+    flex: 1;
+    margin-right: 5px;
+    padding-bottom: 10px;
+  }
+  
+  .phone-number-container {
+    flex: 2;
+    margin-right: 5%;
+    
+  }
+  .boxes{
+    margin-right: 5%; 
+  }
+  .ph{
+    text-align: left;
+  }
+  .required{
+    color: red;
+  margin-left: 5px;
+  }
+  
